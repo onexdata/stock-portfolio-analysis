@@ -1,7 +1,7 @@
 """Tests for the FastAPI app — health check, WebSocket connect, and message handling."""
 
-import asyncio
-from unittest.mock import AsyncMock, patch, MagicMock
+import time
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -73,7 +73,6 @@ def test_websocket_analyze_starts_analysis(client):
     with client["client"].websocket_connect("/ws/test-session") as ws:
         ws.send_json({"action": "analyze", "ticker": "AAPL"})
         # Give the background task a moment to be created
-        import time
         time.sleep(0.1)
 
     client["portfolio"].start_analysis.assert_called_once_with("test-session", "AAPL")
@@ -81,3 +80,22 @@ def test_websocket_analyze_starts_analysis(client):
     call_args = client["run_analysis"].call_args
     assert call_args[0][0] == "test-session"  # session_id
     assert call_args[0][1] == "AAPL"  # ticker
+
+
+def test_websocket_cancel_on_switch(client):
+    """Sending a second analyze request cancels the first analysis task."""
+    with client["client"].websocket_connect("/ws/test-session") as ws:
+        ws.send_json({"action": "analyze", "ticker": "AAPL"})
+        time.sleep(0.1)
+        ws.send_json({"action": "analyze", "ticker": "GOOGL"})
+        time.sleep(0.1)
+
+    # start_analysis called twice (AAPL then GOOGL)
+    assert client["portfolio"].start_analysis.call_count == 2
+    calls = client["portfolio"].start_analysis.call_args_list
+    assert calls[0][0] == ("test-session", "AAPL")
+    assert calls[1][0] == ("test-session", "GOOGL")
+
+    # run_analysis called twice
+    assert client["run_analysis"].call_count == 2
+    assert client["run_analysis"].call_args_list[1][0][1] == "GOOGL"

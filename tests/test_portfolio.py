@@ -58,6 +58,27 @@ async def test_start_analysis_passes_ticker(state):
     assert analysis_json["ticker"] == "AAPL"
 
 
+async def test_append_result_passes_metric_json(state):
+    from app.models import MetricResult
+    from datetime import datetime, timezone
+
+    result = MetricResult(
+        ticker="AAPL", metric="concentration", value=0.4444,
+        timestamp=datetime.now(timezone.utc),
+    )
+    with patch("app.portfolio.redis_client") as mock_rc:
+        mock_rc.append_result = AsyncMock(return_value=state.model_dump_json())
+        await portfolio.append_result("test-session", result)
+
+    mock_rc.append_result.assert_called_once()
+    call_args = mock_rc.append_result.call_args
+    assert call_args[0][0] == "test-session"
+    result_json = json.loads(call_args[0][1])
+    assert result_json["ticker"] == "AAPL"
+    assert result_json["metric"] == "concentration"
+    assert result_json["value"] == 0.4444
+
+
 async def test_update_market_values_serializes_prices(state):
     prices = {"AAPL": 186.50, "GOOGL": 141.20}
     with patch("app.portfolio.redis_client") as mock_rc:

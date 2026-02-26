@@ -156,8 +156,8 @@ async def test_metric_value_ranges(state, _iteration):
         corr = await _compute_correlation("AAPL", state)
         mom = await _compute_momentum("AAPL", state)
 
-    # portfolio_risk ∈ [0, 0.5 × weight] (weight * uniform(0.1, 0.5) rounded)
-    assert 0 <= risk <= 0.5 * weight + 1e-4
+    # portfolio_risk ∈ [0.1×weight, 0.5×weight] (weight * uniform(0.1, 0.5) rounded)
+    assert 0.1 * weight - 1e-4 <= risk <= 0.5 * weight + 1e-4
     # correlation ∈ [-0.3, 0.9]
     assert -0.3 - 1e-4 <= corr <= 0.9 + 1e-4
     # momentum ∈ [-weight, weight]

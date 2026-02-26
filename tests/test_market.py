@@ -1,8 +1,12 @@
-"""Tests for the market data module — mock price generation."""
+"""Tests for the market data module — mock price generation and update loop."""
+
+import asyncio
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from app.market import _mock_prices
+from app.market import _mock_prices, market_update_loop
+from app.models import PortfolioState
 
 
 @pytest.mark.parametrize("_iteration", range(50))
@@ -34,3 +38,35 @@ def test_mock_prices_returns_all_requested_tickers():
 
 def test_mock_prices_empty_list():
     assert _mock_prices([]) == {}
+
+
+async def test_market_update_loop_updates_session():
+    """Smoke test: one iteration reads sessions, fetches state, updates prices."""
+    state = PortfolioState(session_id="s1")
+    iteration = 0
+
+    async def sleep_then_cancel(duration):
+        nonlocal iteration
+        iteration += 1
+        if iteration > 1:
+            raise asyncio.CancelledError
+
+    with (
+        patch("app.market.asyncio.sleep", side_effect=sleep_then_cancel),
+        patch("app.market.redis_client") as mock_rc,
+        patch("app.market.portfolio") as mock_portfolio,
+    ):
+        mock_rc.get_all_session_keys = AsyncMock(return_value=["portfolio:s1"])
+        mock_portfolio.get_portfolio = AsyncMock(return_value=state)
+        mock_portfolio.update_market_values = AsyncMock()
+
+        with pytest.raises(asyncio.CancelledError):
+            await market_update_loop()
+
+    mock_rc.get_all_session_keys.assert_called_once()
+    mock_portfolio.get_portfolio.assert_called_once_with("s1")
+    mock_portfolio.update_market_values.assert_called_once()
+    call_args = mock_portfolio.update_market_values.call_args
+    assert call_args[0][0] == "s1"
+    prices = call_args[0][1]
+    assert set(prices.keys()) == set(state.holdings.keys())
