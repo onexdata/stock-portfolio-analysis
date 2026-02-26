@@ -5,7 +5,11 @@ import logging
 
 from contextlib import asynccontextmanager
 
+from pathlib import Path
+
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app import redis_client, portfolio
 from app.analysis import run_analysis
@@ -44,6 +48,14 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Portfolio Analysis", lifespan=lifespan)
+
+_STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
+app.mount("/static", StaticFiles(directory=_STATIC_DIR), name="static")
+
+
+@app.get("/")
+async def index():
+    return FileResponse(_STATIC_DIR / "index.html")
 
 
 # ── WebSocket endpoint ───────────────────────────────────────────────────────

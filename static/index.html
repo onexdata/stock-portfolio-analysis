@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Analysis</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #0f1117;
+    color: #e0e0e0;
+    min-height: 100vh;
+  }
+
+  /* ── Layout ────────────────────────────────────────────── */
+  .app {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #f0f0f0;
+  }
+  h1 span { color: #6c8cff; }
+
+  /* ── Connection panel ──────────────────────────────────── */
+  .panel {
+    background: #181a20;
+    border: 1px solid #2a2d38;
+    border-radius: 10px;
+    padding: 16px 20px;
+  }
+  .panel-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #888;
+    margin-bottom: 10px;
+  }
+
+  .conn-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .conn-row label {
+    font-size: 0.82rem;
+    color: #aaa;
+  }
+  .conn-row input {
+    flex: 1;
+    min-width: 200px;
+    padding: 6px 10px;
+    background: #12131a;
+    border: 1px solid #2a2d38;
+    border-radius: 6px;
+    color: #ddd;
+    font-family: monospace;
+    font-size: 0.82rem;
+  }
+  .conn-row input:focus { outline: none; border-color: #6c8cff; }
+
+  .btn {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-connect {
+    background: #22c55e;
+    color: #0a0a0a;
+  }
+  .btn-connect:hover { background: #16a34a; }
+  .btn-disconnect {
+    background: #ef4444;
+    color: #fff;
+  }
+  .btn-disconnect:hover { background: #dc2626; }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #555;
+    flex-shrink: 0;
+    transition: background 0.3s;
+  }
+  .status-dot.connected { background: #22c55e; box-shadow: 0 0 6px #22c55e88; }
+  .status-dot.error     { background: #ef4444; box-shadow: 0 0 6px #ef444488; }
+
+  /* ── Portfolio / ticker cards ───────────────────────────── */
+  .ticker-grid {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .ticker-card {
+    background: #1e2028;
+    border: 1px solid #2a2d38;
+    border-radius: 8px;
+    padding: 14px 20px;
+    cursor: pointer;
+    transition: border-color 0.15s, transform 0.1s;
+    text-align: center;
+    min-width: 120px;
+    flex: 1;
+  }
+  .ticker-card:hover {
+    border-color: #6c8cff;
+    transform: translateY(-1px);
+  }
+  .ticker-card.active {
+    border-color: #6c8cff;
+    background: #1a1e2e;
+  }
+  .ticker-symbol {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #f0f0f0;
+  }
+  .ticker-shares {
+    font-size: 0.75rem;
+    color: #888;
+    margin-top: 2px;
+  }
+
+  /* Custom ticker input row */
+  .custom-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 6px;
+  }
+  .custom-row input {
+    width: 120px;
+    padding: 6px 10px;
+    background: #12131a;
+    border: 1px solid #2a2d38;
+    border-radius: 6px;
+    color: #ddd;
+    font-family: monospace;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+  }
+  .custom-row input:focus { outline: none; border-color: #6c8cff; }
+  .btn-analyze {
+    background: #6c8cff;
+    color: #0a0a0a;
+  }
+  .btn-analyze:hover { background: #5a7af0; }
+
+  /* ── Results area ───────────────────────────────────────── */
+  .results-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .results-ticker {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #6c8cff;
+  }
+  .spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid #333;
+    border-top-color: #6c8cff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .results-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .metric-card {
+    background: #1e2028;
+    border: 1px solid #2a2d38;
+    border-radius: 8px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    animation: fadeSlideIn 0.3s ease-out;
+  }
+  .metric-card.cancelled {
+    opacity: 0.35;
+  }
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .metric-name {
+    font-size: 0.82rem;
+    color: #aaa;
+    width: 140px;
+    flex-shrink: 0;
+    text-transform: capitalize;
+  }
+  .metric-value {
+    font-family: monospace;
+    font-size: 0.95rem;
+    font-weight: 600;
+    width: 80px;
+    flex-shrink: 0;
+    text-align: right;
+  }
+  .metric-value.positive { color: #22c55e; }
+  .metric-value.negative { color: #ef4444; }
+  .metric-value.neutral  { color: #facc15; }
+
+  .metric-bar-track {
+    flex: 1;
+    height: 8px;
+    background: #12131a;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .metric-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.4s ease-out;
+  }
+  .metric-bar-fill.positive { background: #22c55e; }
+  .metric-bar-fill.negative { background: #ef4444; }
+  .metric-bar-fill.neutral  { background: #facc15; }
+
+  .no-results {
+    color: #555;
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 24px 0;
+  }
+
+  /* ── Activity log ───────────────────────────────────────── */
+  .log-container {
+    max-height: 220px;
+    overflow-y: auto;
+    background: #12131a;
+    border-radius: 6px;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 0.72rem;
+    line-height: 1.6;
+  }
+  .log-container::-webkit-scrollbar { width: 6px; }
+  .log-container::-webkit-scrollbar-track { background: transparent; }
+  .log-container::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+
+  .log-entry { word-break: break-all; }
+  .log-entry.sent   { color: #6c8cff; }
+  .log-entry.recv   { color: #22c55e; }
+  .log-entry.info   { color: #888; }
+  .log-entry.error  { color: #ef4444; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <h1><span>Portfolio</span> Analysis</h1>
+
+  <!-- Connection -->
+  <div class="panel">
+    <div class="panel-title">Connection</div>
+    <div class="conn-row">
+      <label for="session-id">Session</label>
+      <input id="session-id" type="text" readonly>
+      <div id="status-dot" class="status-dot"></div>
+      <button id="btn-conn" class="btn btn-connect" onclick="toggleConnection()">Connect</button>
+    </div>
+  </div>
+
+  <!-- Portfolio -->
+  <div class="panel">
+    <div class="panel-title">Portfolio Holdings</div>
+    <div class="ticker-grid" id="ticker-grid"></div>
+    <div class="custom-row">
+      <input id="custom-ticker" type="text" placeholder="Custom..." maxlength="6">
+      <button class="btn btn-analyze" onclick="analyzeCustom()">Analyze</button>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="panel">
+    <div class="panel-title">Analysis Results</div>
+    <div id="results-header" class="results-header" style="display:none">
+      <div id="results-ticker" class="results-ticker"></div>
+      <div id="results-spinner" class="spinner" style="display:none"></div>
+      <span id="results-count" style="font-size:0.75rem;color:#888"></span>
+    </div>
+    <div id="results-grid" class="results-grid">
+      <div class="no-results">Select a ticker to begin analysis</div>
+    </div>
+  </div>
+
+  <!-- Log -->
+  <div class="panel">
+    <div class="panel-title">Activity Log</div>
+    <div id="log" class="log-container"></div>
+  </div>
+
+</div>
+
+<script>
+  // ── State ──────────────────────────────────────────────────────────────────
+  const HOLDINGS = { AAPL: 100, GOOGL: 50, MSFT: 75 };
+  const TOTAL_METRICS = 5;
+
+  let ws = null;
+  let activeTicker = null;
+  let metricCount = 0;
+
+  // ── Init ───────────────────────────────────────────────────────────────────
+  document.getElementById("session-id").value = crypto.randomUUID();
+  buildTickerGrid();
+
+  function buildTickerGrid() {
+    const grid = document.getElementById("ticker-grid");
+    for (const [sym, shares] of Object.entries(HOLDINGS)) {
+      const card = document.createElement("div");
+      card.className = "ticker-card";
+      card.dataset.ticker = sym;
+      card.innerHTML = `<div class="ticker-symbol">${sym}</div><div class="ticker-shares">${shares} shares</div>`;
+      card.onclick = () => analyzeTicker(sym);
+      grid.appendChild(card);
+    }
+  }
+
+  // ── Connection ─────────────────────────────────────────────────────────────
+  function toggleConnection() {
+    if (ws && ws.readyState <= WebSocket.OPEN) {
+      disconnect();
+    } else {
+      connect();
+    }
+  }
+
+  function connect() {
+    const sessionId = document.getElementById("session-id").value;
+    if (!sessionId) return;
+
+    const proto = location.protocol === "https:" ? "wss:" : "ws:";
+    const url = `${proto}//${location.host}/ws/${sessionId}`;
+    log("info", `Connecting to ${url}`);
+
+    ws = new WebSocket(url);
+
+    ws.onopen = () => {
+      log("info", "Connected");
+      setStatus("connected");
+      updateConnButton(true);
+    };
+
+    ws.onclose = (e) => {
+      log("info", `Disconnected (code ${e.code})`);
+      setStatus("");
+      updateConnButton(false);
+      ws = null;
+    };
+
+    ws.onerror = () => {
+      log("error", "Connection error");
+      setStatus("error");
+    };
+
+    ws.onmessage = (e) => {
+      const data = JSON.parse(e.data);
+      log("recv", JSON.stringify(data));
+      handleMessage(data);
+    };
+  }
+
+  function disconnect() {
+    if (ws) {
+      ws.close();
+    }
+  }
+
+  function setStatus(state) {
+    const dot = document.getElementById("status-dot");
+    dot.className = "status-dot" + (state ? " " + state : "");
+  }
+
+  function updateConnButton(connected) {
+    const btn = document.getElementById("btn-conn");
+    if (connected) {
+      btn.textContent = "Disconnect";
+      btn.className = "btn btn-disconnect";
+    } else {
+      btn.textContent = "Connect";
+      btn.className = "btn btn-connect";
+    }
+  }
+
+  // ── Analysis ───────────────────────────────────────────────────────────────
+  function analyzeTicker(ticker) {
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+      log("error", "Not connected");
+      return;
+    }
+
+    ticker = ticker.toUpperCase();
+
+    // Cancel-on-switch: if we're already analyzing, grey out existing results
+    if (activeTicker && activeTicker !== ticker && metricCount < TOTAL_METRICS) {
+      markCancelled();
+    }
+
+    activeTicker = ticker;
+    metricCount = 0;
+
+    // Highlight active card
+    document.querySelectorAll(".ticker-card").forEach(c => {
+      c.classList.toggle("active", c.dataset.ticker === ticker);
+    });
+
+    // Clear results
+    const grid = document.getElementById("results-grid");
+    grid.innerHTML = "";
+
+    // Show header with spinner
+    const header = document.getElementById("results-header");
+    header.style.display = "flex";
+    document.getElementById("results-ticker").textContent = ticker;
+    document.getElementById("results-spinner").style.display = "block";
+    document.getElementById("results-count").textContent = `0 / ${TOTAL_METRICS}`;
+
+    // Send
+    const msg = { action: "analyze", ticker };
+    ws.send(JSON.stringify(msg));
+    log("sent", JSON.stringify(msg));
+  }
+
+  function analyzeCustom() {
+    const input = document.getElementById("custom-ticker");
+    const val = input.value.trim();
+    if (val) {
+      analyzeTicker(val);
+      input.value = "";
+    }
+  }
+
+  // Also support Enter key in custom input
+  document.getElementById("custom-ticker").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") analyzeCustom();
+  });
+
+  // ── Message handling ───────────────────────────────────────────────────────
+  function handleMessage(data) {
+    if (data.type === "analysis_result") {
+      addMetricResult(data);
+    } else if (data.type === "error") {
+      log("error", `Server error: ${data.detail}`);
+    }
+  }
+
+  function addMetricResult(data) {
+    // Ignore results from a previous ticker (cancel-on-switch race)
+    if (data.ticker !== activeTicker) return;
+
+    metricCount++;
+
+    const grid = document.getElementById("results-grid");
+    const card = document.createElement("div");
+    card.className = "metric-card";
+
+    const val = data.value;
+    const sign = val > 0.01 ? "positive" : val < -0.01 ? "negative" : "neutral";
+    const pct = Math.min(Math.abs(val) * 100, 100);
+    const displayName = data.metric.replace(/_/g, " ");
+
+    card.innerHTML = `
+      <div class="metric-name">${displayName}</div>
+      <div class="metric-value ${sign}">${val >= 0 ? "+" : ""}${val.toFixed(4)}</div>
+      <div class="metric-bar-track">
+        <div class="metric-bar-fill ${sign}" style="width: 0%"></div>
+      </div>`;
+
+    grid.appendChild(card);
+
+    // Animate bar width
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        card.querySelector(".metric-bar-fill").style.width = pct + "%";
+      });
+    });
+
+    // Update count
+    document.getElementById("results-count").textContent = `${metricCount} / ${TOTAL_METRICS}`;
+
+    // Hide spinner when all metrics arrived
+    if (metricCount >= TOTAL_METRICS) {
+      document.getElementById("results-spinner").style.display = "none";
+    }
+  }
+
+  function markCancelled() {
+    document.querySelectorAll(".metric-card").forEach(c => c.classList.add("cancelled"));
+    document.getElementById("results-spinner").style.display = "none";
+  }
+
+  // ── Log ────────────────────────────────────────────────────────────────────
+  function log(level, text) {
+    const container = document.getElementById("log");
+    const ts = new Date().toLocaleTimeString();
+    const prefix = { sent: "\u25b6", recv: "\u25c0", info: "\u2022", error: "\u2716" }[level] || "\u2022";
+    const entry = document.createElement("div");
+    entry.className = "log-entry " + level;
+    entry.textContent = `${ts}  ${prefix}  ${text}`;
+    container.appendChild(entry);
+    container.scrollTop = container.scrollHeight;
+  }
+</script>
+</body>
+</html>
