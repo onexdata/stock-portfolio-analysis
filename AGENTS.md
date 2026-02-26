@@ -36,7 +36,31 @@ scripts/
   demo_client.py    - WebSocket test/demo script
 documentation/
   adr/              - Architecture Decision Records
+  diagrams/
+    system-architecture.drawio - Visual system architecture diagram (draw.io)
 ```
+
+## System Architecture Diagram
+
+The file `documentation/diagrams/system-architecture.drawio` is a draw.io diagram showing the full end-to-end system architecture: client layer, FastAPI server, concurrent workers (analysis engine + market updater), data layer (portfolio.py / redis_client.py), and Redis storage with Lua scripts.
+
+**When making changes that affect the architecture, you must update this diagram:**
+
+1. Open `documentation/diagrams/system-architecture.drawio` and modify the relevant components, arrows, or labels to reflect the new architecture.
+2. Update the grey **"Maintainer: Claude (automated)"** note box (top-right of the diagram, cell id `PoARDayDRui8yD0Vx3xu-2`) to include:
+   - **Last updated:** the date/time of the change (ISO format, e.g. `2026-02-26T14:30Z`)
+   - **Last commit:** the short SHA of the commit that triggered the update
+   - **Assisted by:** who made the change (e.g. `Claude Opus 4.6`, `human`, or both)
+3. The note box value should follow this format:
+   ```
+   Maintainer: Claude (automated)
+
+   Last updated: <ISO datetime>
+   Last commit: <short SHA>
+   Assisted by: <who>
+
+   Note: This is only intended as a code test
+   ```
 
 ## Running
 

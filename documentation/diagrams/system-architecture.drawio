@@ -1,0 +1,279 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.5.2 Chrome/142.0.7444.265 Electron/39.6.1 Safari/537.36" version="29.5.2">
+  <diagram id="system-arch" name="System Architecture">
+    <mxGraphModel dx="1593" dy="1118" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="layer-client" parent="1" style="text;html=1;fontSize=11;fontStyle=1;fillColor=none;strokeColor=none;fontColor=#999999;align=left;" value="CLIENT" vertex="1">
+          <mxGeometry height="20" width="80" x="280" y="65" as="geometry" />
+        </mxCell>
+        <mxCell id="layer-server" parent="1" style="text;html=1;fontSize=11;fontStyle=1;fillColor=none;strokeColor=none;fontColor=#999999;align=left;" value="FASTAPI SERVER" vertex="1">
+          <mxGeometry height="20" width="120" x="280" y="215" as="geometry" />
+        </mxCell>
+        <mxCell id="layer-workers" parent="1" style="text;html=1;fontSize=11;fontStyle=1;fillColor=none;strokeColor=none;fontColor=#999999;align=left;" value="CONCURRENT WORKERS" vertex="1">
+          <mxGeometry height="20" width="160" x="280" y="445" as="geometry" />
+        </mxCell>
+        <mxCell id="layer-data" parent="1" style="text;html=1;fontSize=11;fontStyle=1;fillColor=none;strokeColor=none;fontColor=#999999;align=left;" value="DATA LAYER" vertex="1">
+          <mxGeometry height="20" width="100" x="280" y="725" as="geometry" />
+        </mxCell>
+        <mxCell id="layer-store" parent="1" style="text;html=1;fontSize=11;fontStyle=1;fillColor=none;strokeColor=none;fontColor=#999999;align=left;" value="STORAGE" vertex="1">
+          <mxGeometry height="20" width="80" x="280" y="895" as="geometry" />
+        </mxCell>
+        <mxCell id="browser" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;arcSize=12;" value="&lt;b&gt;Browser&lt;/b&gt;&lt;br&gt;Single HTML page&lt;br&gt;served by FastAPI at /" vertex="1">
+          <mxGeometry height="70" width="220" x="850" y="75" as="geometry" />
+        </mxCell>
+        <mxCell id="ws-client" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" value="&lt;b&gt;Native WebSocket&lt;/b&gt;&lt;br&gt;/ws/{session_id}" vertex="1">
+          <mxGeometry height="40" width="180" x="870" y="165" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-browser-ws" edge="1" parent="1" source="browser" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;" target="ws-client">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="server-box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;dashed=1;arcSize=6;" value="" vertex="1">
+          <mxGeometry height="180" width="780" x="570" y="235" as="geometry" />
+        </mxCell>
+        <mxCell id="server-label" parent="1" style="text;html=1;fontSize=14;fillColor=none;strokeColor=none;fontColor=#333333;" value="&lt;b&gt;FastAPI Server&lt;/b&gt;  (main.py)" vertex="1">
+          <mxGeometry height="25" width="170" x="875" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="ws-endpoint" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" value="&lt;b&gt;WebSocket Endpoint&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Receives:&lt;br&gt;{&quot;action&quot;: &quot;analyze&quot;,&lt;br&gt; &quot;ticker&quot;: &quot;...&quot;}&lt;br&gt;Sends: streaming results&lt;/font&gt;" vertex="1">
+          <mxGeometry height="100" width="200" x="600" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="cancel-logic" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" value="&lt;b&gt;Cancel-on-Switch&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Cancels previous task&lt;br&gt;group on new request&lt;/font&gt;" vertex="1">
+          <mxGeometry height="70" width="180" x="910" y="295" as="geometry" />
+        </mxCell>
+        <mxCell id="lifespan" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" value="&lt;b&gt;Lifespan Manager&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Starts/stops Redis conn&lt;br&gt;&amp;amp; market updater&lt;/font&gt;" vertex="1">
+          <mxGeometry height="70" width="180" x="1140" y="295" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-wsclient-ep" edge="1" parent="1" source="ws-client" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;fontStyle=2;fontSize=10;exitX=0;exitY=0.25;exitDx=0;exitDy=0;" target="ws-endpoint" value="analyze request">
+          <mxGeometry relative="1" x="-0.3455" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="analysis-box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=2;dashed=1;arcSize=8;" value="" vertex="1">
+          <mxGeometry height="210" width="420" x="410" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="analysis-label" parent="1" style="text;html=1;fontSize=13;fillColor=none;strokeColor=none;fontColor=#7c4d8a;" value="&lt;b&gt;Analysis Engine&lt;/b&gt;  (analysis.py)" vertex="1">
+          <mxGeometry height="22" width="250" x="550" y="485" as="geometry" />
+        </mxCell>
+        <mxCell id="analysis-desc" parent="1" style="text;html=1;fontSize=10;fillColor=none;strokeColor=none;fontColor=#666666;fontStyle=2;" value="5 parallel asyncio tasks via asyncio.gather()" vertex="1">
+          <mxGeometry height="16" width="280" x="550" y="507" as="geometry" />
+        </mxCell>
+        <mxCell id="metric1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" value="&lt;b&gt;portfolio_risk&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;2-5s async&lt;/font&gt;" vertex="1">
+          <mxGeometry height="44" width="120" x="430" y="530" as="geometry" />
+        </mxCell>
+        <mxCell id="metric2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" value="&lt;b&gt;concentration&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;2-5s async&lt;/font&gt;" vertex="1">
+          <mxGeometry height="44" width="120" x="560" y="530" as="geometry" />
+        </mxCell>
+        <mxCell id="metric3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" value="&lt;b&gt;correlation&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;2-5s async&lt;/font&gt;" vertex="1">
+          <mxGeometry height="44" width="120" x="690" y="530" as="geometry" />
+        </mxCell>
+        <mxCell id="metric4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" value="&lt;b&gt;momentum&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;2-5s async&lt;/font&gt;" vertex="1">
+          <mxGeometry height="44" width="120" x="490" y="586" as="geometry" />
+        </mxCell>
+        <mxCell id="metric5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" value="&lt;b&gt;allocation_score&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;2-5s async&lt;/font&gt;" vertex="1">
+          <mxGeometry height="44" width="130" x="630" y="586" as="geometry" />
+        </mxCell>
+        <mxCell id="snapshot-note" parent="1" style="text;html=1;fillColor=none;strokeColor=none;fontColor=#9673a6;fontStyle=2;" value="&lt;font style=&quot;font-size:10px&quot;&gt;All 5 tasks share&lt;br&gt;a frozen portfolio snapshot&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="180" x="430" y="640" as="geometry" />
+        </mxCell>
+        <mxCell id="market-box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;strokeWidth=2;" value="&lt;b&gt;Market Updater&lt;/b&gt;&lt;br&gt;(market.py)&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Background loop every 30s&lt;br&gt;Mock prices (±2% walk)&lt;br&gt;Updates all active sessions&lt;/font&gt;" vertex="1">
+          <mxGeometry height="120" width="220" x="1120" y="492" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-server-analysis" edge="1" parent="1" source="ws-endpoint" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#9673a6;fontStyle=2;fontSize=10;entryX=0.525;entryY=-0.004;entryDx=0;entryDy=0;entryPerimeter=0;" target="analysis-box" value="launch parallel tasks&#xa;(with cancel ref)">
+          <mxGeometry relative="1" x="0.4119" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="630" y="430" />
+              <mxPoint x="630" y="430" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow-lifespan-market" edge="1" parent="1" source="lifespan" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#82b366;fontStyle=2;fontSize=10;" target="market-box" value="starts/stops">
+          <mxGeometry relative="1" x="0.3386" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="portfolio-box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;strokeWidth=2;" value="&lt;b&gt;portfolio.py&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Python CRUD API&lt;br&gt;(only module that touches Redis)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="70" width="240" x="810" y="745" as="geometry" />
+        </mxCell>
+        <mxCell id="redis-client-box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;" value="&lt;b&gt;redis_client.py&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;RedisJSON commands&lt;br&gt;+ Lua scripts (EVALSHA)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="70" width="220" x="1120" y="745" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-port-rc" edge="1" parent="1" source="portfolio-box" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#b85450;" target="redis-client-box">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-analysis-port" edge="1" parent="1" source="analysis-box" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#9673a6;fontStyle=2;fontSize=10;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" target="portfolio-box" value="append_result">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="620" y="763" />
+              <mxPoint x="810" y="763" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow-market-port" edge="1" parent="1" source="market-box" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#82b366;fontStyle=2;fontSize=10;entryX=0.75;entryY=0;entryDx=0;entryDy=0;exitX=0.005;exitY=0.451;exitDx=0;exitDy=0;exitPerimeter=0;" target="portfolio-box" value="update_market">
+          <mxGeometry relative="1" x="0.3637" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="990" y="546" />
+            </Array>
+            <mxPoint x="990" y="740" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow-server-port" edge="1" parent="1" source="ws-endpoint" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;fontStyle=2;fontSize=10;entryX=0.25;entryY=0;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="portfolio-box" value="start_analysis">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="870" y="330" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow-analysis-stream" edge="1" parent="1" source="analysis-box" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#7c4d8a;fontStyle=2;fontSize=10;dashed=1;exitX=-0.001;exitY=0.328;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" target="ws-client" value="stream each metric result">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="390" y="544" />
+              <mxPoint x="390" y="195" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow-snapshot" edge="1" parent="1" source="portfolio-box" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#b85450;fontStyle=2;fontSize=10;dashed=1;entryX=0.002;entryY=0.709;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0;exitY=0.75;exitDx=0;exitDy=0;" target="analysis-box" value="portfolio snapshot (frozen state)">
+          <mxGeometry relative="1" x="-0.2472" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="810" y="800" />
+              <mxPoint x="380" y="800" />
+              <mxPoint x="380" y="629" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="redis-box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;dashed=1;arcSize=6;" value="" vertex="1">
+          <mxGeometry height="220" width="850" x="500" y="875" as="geometry" />
+        </mxCell>
+        <mxCell id="redis-label" parent="1" style="text;html=1;fontSize=14;fillColor=none;strokeColor=none;fontColor=#d79b00;" value="&lt;b&gt;Redis 8&lt;/b&gt;  (RedisJSON)" vertex="1">
+          <mxGeometry height="25" width="140" x="860" y="880" as="geometry" />
+        </mxCell>
+        <mxCell id="redis-doc" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;align=left;spacingLeft=10;spacingRight=10;" value="&lt;div style=&quot;text-align:left;font-size:11px;font-family:monospace;&quot;&gt;&lt;b&gt;portfolio:{session_id}&lt;/b&gt;&lt;br&gt;&lt;br&gt;$.holdings&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{AAPL:100, GOOGL:50, MSFT:75}&lt;br&gt;$.total_value&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;125000.00&lt;br&gt;$.current_analysis&amp;nbsp;{ticker, started_at}&lt;br&gt;$.analysis_results&amp;nbsp;[{ticker, metric, value, ts}]&lt;br&gt;$.last_activity&amp;nbsp;&amp;nbsp;&amp;nbsp;ISO timestamp&lt;/div&gt;" vertex="1">
+          <mxGeometry height="150" width="370" x="530" y="915" as="geometry" />
+        </mxCell>
+        <mxCell id="lua-scripts" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;align=left;spacingLeft=10;spacingRight=10;" value="&lt;div style=&quot;text-align:left;font-size:11px;&quot;&gt;&lt;b&gt;Lua Scripts (EVALSHA)&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;start_analysis&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;SET current_analysis, EXPIRE, GET snapshot&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;append_result&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;ARRAPPEND to $.analysis_results (O(1))&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;update_market&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Read $.holdings, recalc total_value&lt;/font&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="150" width="360" x="960" y="915" as="geometry" />
+        </mxCell>
+        <mxCell id="ttl-note" parent="1" style="text;html=1;fontSize=10;fillColor=none;strokeColor=none;fontColor=#d79b00;fontStyle=2;" value="&lt;b&gt;EXPIRE 24hr TTL&lt;/b&gt; refreshed on every write" vertex="1">
+          <mxGeometry height="16" width="190" x="835" y="1070" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-rc-redis" edge="1" parent="1" source="redis-client-box" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d79b00;fontStyle=2;fontSize=10;" target="redis-box" value="JSON.SET / JSON.GET&lt;br&gt;EVALSHA">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="title" parent="1" style="text;html=1;fontSize=20;fontStyle=1;fillColor=none;strokeColor=none;fontColor=#333333;align=center;" value="CoCo AI — Portfolio Analysis System Architecture" vertex="1">
+          <mxGeometry height="30" width="620" x="540" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="PoARDayDRui8yD0Vx3xu-2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;fontColor=#333333;verticalAlign=top;" value="&lt;b&gt;Maintainer: Claude (automated)&lt;/b&gt;&lt;br&gt;&lt;br&gt;Note: This is only intended as a code test" vertex="1">
+          <mxGeometry height="115" width="270" x="1200" y="75" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="tests" name="Tests">
+    <mxGraphModel dx="1593" dy="1118" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="t-title" parent="1" style="text;html=1;fontSize=20;fontStyle=1;fillColor=none;strokeColor=none;fontColor=#333333;align=center;" value="CoCo AI — Test Suite Overview" vertex="1">
+          <mxGeometry x="490" y="20" width="620" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="t-stats" parent="1" style="text;html=1;fontSize=12;fillColor=none;strokeColor=none;fontColor=#666666;align=center;fontStyle=2;" value="100 tests (32 unique + parametrized iterations) &amp;nbsp;|&amp;nbsp; No Redis or server needed &amp;nbsp;|&amp;nbsp; pytest + pytest-asyncio" vertex="1">
+          <mxGeometry x="400" y="55" width="800" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="t-col-test" parent="1" style="text;html=1;fontSize=11;fontStyle=1;fillColor=none;strokeColor=none;fontColor=#999999;align=left;" value="TEST FILES" vertex="1">
+          <mxGeometry x="80" y="80" width="100" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="t-col-src" parent="1" style="text;html=1;fontSize=11;fontStyle=1;fillColor=none;strokeColor=none;fontColor=#999999;align=left;" value="SOURCE MODULES" vertex="1">
+          <mxGeometry x="620" y="80" width="130" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="t-col-mock" parent="1" style="text;html=1;fontSize=11;fontStyle=1;fillColor=none;strokeColor=none;fontColor=#999999;align=left;" value="MOCKED (never called)" vertex="1">
+          <mxGeometry x="1100" y="80" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="t-conftest" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6e6e6;strokeColor=#999999;fontSize=11;align=left;spacingLeft=10;" value="&lt;b&gt;conftest.py&lt;/b&gt; — Shared Fixtures&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;&amp;bull; &lt;code&gt;sample_state&lt;/code&gt; — PortfolioState(session_id=&amp;quot;test-session&amp;quot;)&lt;br&gt;&amp;bull; &lt;code&gt;sample_state_json&lt;/code&gt; — its JSON serialization&lt;br&gt;&amp;bull; &lt;code&gt;mock_redis&lt;/code&gt; — patches redis_client in portfolio + market modules&lt;/font&gt;" vertex="1">
+          <mxGeometry x="80" y="105" width="480" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="t-models" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=left;spacingLeft=10;" value="&lt;b&gt;test_models.py&lt;/b&gt; (7 tests)&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;&amp;bull; PortfolioState defaults (holdings, total_value, etc.)&lt;br&gt;&amp;bull; Holdings default_factory independence between instances&lt;br&gt;&amp;bull; JSON roundtrip (model_dump_json → model_validate_json)&lt;br&gt;&amp;bull; AnalyzeRequest validation + missing ticker raises error&lt;br&gt;&amp;bull; Default type fields on AnalysisResultMessage / ErrorMessage&lt;/font&gt;" vertex="1">
+          <mxGeometry x="80" y="200" width="380" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="t-models-src" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;" value="&lt;b&gt;models.py&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Pydantic models&lt;br&gt;(pure, no deps)&lt;/font&gt;" vertex="1">
+          <mxGeometry x="620" y="215" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="t-arr-models" edge="1" parent="1" source="t-models" target="t-models-src" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;fontSize=10;fontStyle=2;" value="tests">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t-analysis" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=left;spacingLeft=10;" value="&lt;b&gt;test_analysis.py&lt;/b&gt; (10 tests + 20 parametrized)&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;&lt;b&gt;Pure functions:&lt;/b&gt; _holding_weight (known/unknown/empty),&lt;br&gt;&amp;nbsp;&amp;nbsp;concentration = weight, allocation_score direction&lt;br&gt;&lt;b&gt;Orchestration:&lt;/b&gt; all 5 metrics run, results persisted,&lt;br&gt;&amp;nbsp;&amp;nbsp;message shape validated, cancellation mid-flight&lt;br&gt;&lt;b&gt;Ranges:&lt;/b&gt; portfolio_risk, correlation, momentum bounds&lt;br&gt;&amp;nbsp;&amp;nbsp;(x20 iterations to catch randomness edge cases)&lt;/font&gt;" vertex="1">
+          <mxGeometry x="80" y="330" width="380" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="t-analysis-src" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;" value="&lt;b&gt;analysis.py&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Parallel metric engine&lt;br&gt;5 async tasks + gather&lt;/font&gt;" vertex="1">
+          <mxGeometry x="620" y="355" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="t-arr-analysis" edge="1" parent="1" source="t-analysis" target="t-analysis-src" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;fontSize=10;fontStyle=2;" value="tests">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t-analysis-mock-note" parent="1" style="text;html=1;fontSize=10;fillColor=none;strokeColor=none;fontColor=#b85450;fontStyle=2;align=left;" value="asyncio.sleep patched → instant&lt;br&gt;portfolio.append_result → AsyncMock" vertex="1">
+          <mxGeometry x="620" y="430" width="230" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="t-market" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=left;spacingLeft=10;" value="&lt;b&gt;test_market.py&lt;/b&gt; (5 tests + 50 parametrized)&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;&amp;bull; Known ticker price range (AAPL: 185.0 +/- 2%)&lt;br&gt;&amp;bull; Unknown ticker default (100.0 +/- 2%)&lt;br&gt;&amp;bull; Two-decimal rounding, all tickers returned&lt;br&gt;&amp;bull; Empty list → empty dict&lt;/font&gt;" vertex="1">
+          <mxGeometry x="80" y="490" width="380" height="95" as="geometry" />
+        </mxCell>
+        <mxCell id="t-market-src" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" value="&lt;b&gt;market.py&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;_mock_prices()&lt;br&gt;(pure function)&lt;/font&gt;" vertex="1">
+          <mxGeometry x="620" y="500" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="t-arr-market" edge="1" parent="1" source="t-market" target="t-market-src" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;fontSize=10;fontStyle=2;" value="tests">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t-portfolio" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=left;spacingLeft=10;" value="&lt;b&gt;test_portfolio.py&lt;/b&gt; (5 tests)&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;&amp;bull; ensure_session calls init_session + returns PortfolioState&lt;br&gt;&amp;bull; get_portfolio returns None when Redis key missing&lt;br&gt;&amp;bull; start_analysis passes ticker in JSON payload&lt;br&gt;&amp;bull; update_market_values serializes prices dict correctly&lt;/font&gt;" vertex="1">
+          <mxGeometry x="80" y="615" width="380" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="t-portfolio-src" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;" value="&lt;b&gt;portfolio.py&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;CRUD layer&lt;br&gt;(Python API over redis_client)&lt;/font&gt;" vertex="1">
+          <mxGeometry x="620" y="625" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="t-arr-portfolio" edge="1" parent="1" source="t-portfolio" target="t-portfolio-src" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;fontSize=10;fontStyle=2;" value="tests">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t-websocket" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=left;spacingLeft=10;" value="&lt;b&gt;test_websocket.py&lt;/b&gt; (5 tests)&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;&amp;bull; GET /health returns {&amp;quot;status&amp;quot;: &amp;quot;ok&amp;quot;}&lt;br&gt;&amp;bull; WebSocket handshake + ensure_session called&lt;br&gt;&amp;bull; Invalid message (missing ticker) → error response&lt;br&gt;&amp;bull; Unknown action → error response&lt;br&gt;&amp;bull; analyze request triggers start_analysis + run_analysis&lt;/font&gt;" vertex="1">
+          <mxGeometry x="80" y="735" width="380" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="t-websocket-src" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" value="&lt;b&gt;main.py&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;FastAPI app&lt;br&gt;WebSocket endpoint + /health&lt;/font&gt;" vertex="1">
+          <mxGeometry x="620" y="750" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="t-arr-websocket" edge="1" parent="1" source="t-websocket" target="t-websocket-src" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;fontSize=10;fontStyle=2;" value="tests">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t-mock-line" parent="1" style="endArrow=none;dashed=1;html=1;strokeWidth=2;strokeColor=#cc0000;" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1000" y="110" as="sourcePoint" />
+            <mxPoint x="1000" y="870" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="t-mock-label" parent="1" style="text;html=1;fontSize=12;fontStyle=1;fillColor=#ffcccc;strokeColor=#cc0000;fontColor=#cc0000;align=center;rounded=1;" value="MOCK BOUNDARY" vertex="1">
+          <mxGeometry x="930" y="105" width="140" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="t-redis-mock" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d9d9d9;strokeColor=#999999;fontSize=12;dashed=1;fontColor=#555555;" value="&lt;b&gt;redis_client.py&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;All functions replaced&lt;br&gt;with AsyncMock&lt;/font&gt;" vertex="1">
+          <mxGeometry x="1100" y="400" width="200" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="t-redis-svc-mock" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d9d9d9;strokeColor=#999999;fontSize=12;dashed=1;fontColor=#555555;" value="&lt;b&gt;Redis Server&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Not needed&lt;/font&gt;" vertex="1">
+          <mxGeometry x="1100" y="500" width="200" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="t-sleep-mock" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d9d9d9;strokeColor=#999999;fontSize=12;dashed=1;fontColor=#555555;" value="&lt;b&gt;asyncio.sleep&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Patched → instant&lt;br&gt;(no 2-5s waits)&lt;/font&gt;" vertex="1">
+          <mxGeometry x="1100" y="585" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="t-lifespan-mock" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d9d9d9;strokeColor=#999999;fontSize=12;dashed=1;fontColor=#555555;" value="&lt;b&gt;Lifespan / market_update_loop&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Mocked in WebSocket tests&lt;/font&gt;" vertex="1">
+          <mxGeometry x="1100" y="675" width="200" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="t-arr-port-mock" edge="1" parent="1" source="t-portfolio-src" target="t-redis-mock" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#999999;dashed=1;fontSize=10;fontStyle=2;fontColor=#555555;" value="mocked">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="900" y="660" />
+              <mxPoint x="900" y="435" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="t-run-cmd" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6ffcc;strokeColor=#82b366;fontSize=11;align=center;" value="&lt;b&gt;Run:&lt;/b&gt; &lt;code&gt;pytest -v&lt;/code&gt; &amp;nbsp;&amp;nbsp; All 100 tests pass in &amp;lt;1 second" vertex="1">
+          <mxGeometry x="80" y="865" width="380" height="35" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
