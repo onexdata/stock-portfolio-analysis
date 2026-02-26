@@ -70,7 +70,7 @@ docker run -d --name redis -p 6379:6379 redis:latest
 
 # Server
 pip install -r requirements.txt
-uvicorn app.main:app --reload
+uvicorn app.main:app --reload --reload-dir app
 
 # Demo client
 python scripts/demo_client.py

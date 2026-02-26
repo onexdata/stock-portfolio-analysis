@@ -49,7 +49,7 @@ pip install -r requirements.txt
 ### 3. Start the Server
 
 ```bash
-uvicorn app.main:app --reload
+uvicorn app.main:app --reload --reload-dir app
 ```
 
 ### 4. Run the Demo Client
