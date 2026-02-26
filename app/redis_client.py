@@ -59,7 +59,7 @@ async def get_portfolio(session_id: str) -> str | None:
     key = _key(session_id)
     raw = await r.execute_command("JSON.GET", key)
     if raw is not None:
-        await r.expire(key, config.features.client_connectivity.config.features.client_connectivity.settings.session_ttl_seconds)
+        await r.expire(key, config.features.client_connectivity.settings.session_ttl_seconds)
     return raw
 
 
