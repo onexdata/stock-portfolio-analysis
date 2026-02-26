@@ -40,9 +40,12 @@ See [`documentation/adr/001-system-architecture.md`](documentation/adr/001-syste
 docker run -d --name redis -p 6379:6379 redis:latest
 ```
 
-### 2. Install Dependencies
+### 2. Create a Virtual Environment and Install Dependencies
 
 ```bash
+python -m venv .venv
+source .venv/bin/activate   # Linux/macOS
+.venv\Scripts\activate      # Windows
 pip install -r requirements.txt
 ```
 
@@ -88,7 +91,7 @@ Done — received 5 GOOGL results.
 The test suite runs entirely offline — no Redis or server required. All external dependencies are mocked. Test dependencies are included in `requirements.txt`.
 
 ```bash
-pytest -v
+python -m pytest -v
 ```
 
 A coverage report is included automatically with every run (via `pytest-cov`). No extra flags needed.
