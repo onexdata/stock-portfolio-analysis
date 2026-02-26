@@ -85,10 +85,9 @@ Done — received 5 GOOGL results.
 
 ## Testing
 
-The test suite runs entirely offline — no Redis or server required. All external dependencies are mocked.
+The test suite runs entirely offline — no Redis or server required. All external dependencies are mocked. Test dependencies are included in `requirements.txt`.
 
 ```bash
-pip install pytest pytest-asyncio httpx
 pytest -v
 ```
 
