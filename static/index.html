@@ -305,9 +305,10 @@
   let metricCount = 0;
 
   // Config values (set after POST /session)
-  let idleTimeoutSeconds = 60;
+  let idleTimeoutSeconds = 10;
   let autoReconnect = true;
   let idleTimer = null;
+  let isIdle = false;
 
   // ── Init: auto-connect on page load ─────────────────────────────────────
   createSession();
@@ -416,15 +417,29 @@
   }
 
   function onIdle() {
-    log("info", "Idle timeout — reconnecting with new session");
+    log("info", "Idle timeout — disconnected");
+    isIdle = true;
     if (ws) ws.close();
-    setStatus("reconnecting", "Reconnecting...");
-    setTimeout(createSession, 1000);
+    setStatus("", "Idle — click or type to reconnect");
   }
 
-  // Reset idle timer on user activity
-  document.addEventListener("click", resetIdleTimer);
-  document.addEventListener("keypress", resetIdleTimer);
+  function onActivity(e) {
+    if (isIdle) {
+      // Wake up: consume this event (don't let it trigger analyzeTicker etc.)
+      // and create a fresh session
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      isIdle = false;
+      createSession();
+    } else {
+      resetIdleTimer();
+    }
+  }
+
+  // Reset idle timer / wake from idle on user activity
+  // Use capture phase so we intercept before card onclick handlers
+  document.addEventListener("click", onActivity, true);
+  document.addEventListener("keypress", onActivity, true);
 
   // ── Analysis ───────────────────────────────────────────────────────────────
   function analyzeTicker(ticker) {

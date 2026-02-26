@@ -41,3 +41,7 @@ htmlcov/
 
 # mypy
 .mypy_cache/
+
+# draw.io temp files
+.$*.drawio.bkp
+.$*.drawio.dtmp
