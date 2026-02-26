@@ -91,12 +91,14 @@ The test suite runs entirely offline — no Redis or server required. All extern
 pytest -v
 ```
 
+A coverage report is included automatically with every run (via `pytest-cov`). No extra flags needed.
+
 Tests cover:
 - **Models** — Pydantic defaults, validation, JSON roundtrips
 - **Analysis** — metric functions, parallel orchestration, cancel-on-switch
-- **Market** — mock price generation and ranges
+- **Market** — mock price generation and update loop
 - **Portfolio** — CRUD layer serialization at the Redis boundary
-- **WebSocket** — health check, connect, error handling, analyze flow
+- **WebSocket** — health check, connect, error handling, cancel-on-switch
 
 ## Configuration
 
