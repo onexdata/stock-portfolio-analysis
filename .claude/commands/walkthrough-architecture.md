@@ -17,36 +17,33 @@ If arguments are provided, focus the walkthrough on that specific page or layer 
 
 ### Setup
 
-1. **Open the diagram** by navigating to:
+1. **Open the diagram** by navigating to diagrams.net's viewer, passing the raw GitHub URL so it renders the `.drawio` file visually. The base URL pattern is:
    ```
-   https://app.diagrams.net/?lightbox=1&highlight=0000ff&layers=1&nav=1&title=system-architecture.drawio#R
+   https://viewer.diagrams.net/?highlight=0000ff&layers=1&nav=1&page-id={PAGE_ID}&title=system-architecture.drawio#Uhttps%3A%2F%2Fraw.githubusercontent.com%2Fonexdata%2Fstock-portfolio-analysis%2Fmain%2Fdocumentation%2Fdiagrams%2Fsystem-architecture.drawio
    ```
-   Note: This opens draw.io in lightbox/viewer mode. We will load the file content via JavaScript.
+   This loads the diagram directly from the GitHub repo and renders it fully in the diagrams.net viewer.
 
-2. **Alternatively**, if the repo is public and pushed, navigate directly to the GitHub-rendered view:
-   ```
-   https://github.com/onexdata/stock-portfolio-analysis/blob/main/documentation/diagrams/system-architecture.drawio
-   ```
-   GitHub renders `.drawio` files natively. Use this if available.
-
-3. **Take an initial screenshot** to confirm the diagram loaded.
+2. **Take an initial screenshot** to confirm the diagram loaded.
 
 ### Walking through the diagram
 
 For each page (System Architecture → Tests → Client Architecture):
 
-4. **Switch to the page** if draw.io is in multi-page mode:
-   - On GitHub's viewer, the pages appear as tabs — click the appropriate tab
-   - On app.diagrams.net, use the page tabs at the bottom
+3. **Switch to the page** by navigating to the same viewer URL with the `page-id` query parameter set to the target page ID. The page IDs are:
+   - `system-arch` — System Architecture (Page 1)
+   - `tests` — Tests (Page 2)
+   - `client-arch` — Client Architecture (Page 3)
 
-5. **Take a screenshot** of the full page view.
+   Example: to switch to the Tests page, navigate to the URL with `page-id=tests`.
 
-6. **For each major component group** on the current page, in the order listed below:
+4. **Take a screenshot** of the full page view.
+
+5. **For each major component group** on the current page, in the order listed below:
    a. **Explain** what it represents, referencing the source files and line numbers shown in the blue link text
    b. **Describe the data flow** — follow the arrows connecting it to other components
    c. **Call out key design decisions** (e.g., why Lua scripts, why snapshot consistency, why cancel-on-switch)
 
-7. **Take screenshots** between major sections to show progress.
+6. **Take screenshots** between major sections to show progress.
 
 ## Pages and components to cover
 
@@ -84,6 +81,5 @@ For each page (System Architecture → Tests → Client Architecture):
 
 - The blue text on each component shows the source file and line number — these are clickable links to GitHub. Mention them as you walk through so viewers know exactly where to find the code.
 - When explaining arrows, follow the color coding: yellow = server ops, purple = analysis flow, green = market updater, red = data layer, dashed = streaming/async responses.
-- If using GitHub's viewer, you may not be able to highlight individual cells — in that case, just describe the components verbally while referencing the screenshot.
-- If using app.diagrams.net, you can use `evaluate_script` to interact with the diagram's DOM to highlight cells.
+- The diagrams.net viewer renders the full diagram interactively — use `evaluate_script` to interact with the diagram's DOM to highlight cells if needed, or describe components verbally while referencing the screenshot.
 - Keep explanations concise — the diagram is meant to give reviewers a quick mental model, not replace reading the code.
