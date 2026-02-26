@@ -24,6 +24,12 @@
     gap: 20px;
   }
 
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
   h1 {
     font-size: 1.4rem;
     font-weight: 600;
@@ -31,7 +37,27 @@
   }
   h1 span { color: #6c8cff; }
 
-  /* ── Connection panel ──────────────────────────────────── */
+  /* ── Status badge ───────────────────────────────────────── */
+  .status-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: #888;
+  }
+  .status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #555;
+    flex-shrink: 0;
+    transition: background 0.3s;
+  }
+  .status-dot.connected { background: #22c55e; box-shadow: 0 0 6px #22c55e88; }
+  .status-dot.reconnecting { background: #facc15; box-shadow: 0 0 6px #facc1588; }
+  .status-dot.error     { background: #ef4444; box-shadow: 0 0 6px #ef444488; }
+
+  /* ── Panels ─────────────────────────────────────────────── */
   .panel {
     background: #181a20;
     border: 1px solid #2a2d38;
@@ -45,64 +71,6 @@
     color: #888;
     margin-bottom: 10px;
   }
-
-  .conn-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  .conn-row label {
-    font-size: 0.82rem;
-    color: #aaa;
-  }
-  .conn-row input {
-    flex: 1;
-    min-width: 200px;
-    padding: 6px 10px;
-    background: #12131a;
-    border: 1px solid #2a2d38;
-    border-radius: 6px;
-    color: #ddd;
-    font-family: monospace;
-    font-size: 0.82rem;
-  }
-  .conn-row input:focus { outline: none; border-color: #6c8cff; }
-
-  .btn {
-    padding: 6px 16px;
-    border: none;
-    border-radius: 6px;
-    font-size: 0.82rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .btn-connect {
-    background: #22c55e;
-    color: #0a0a0a;
-  }
-  .btn-connect:hover { background: #16a34a; }
-  .btn-disconnect {
-    background: #ef4444;
-    color: #fff;
-  }
-  .btn-disconnect:hover { background: #dc2626; }
-  .btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-
-  .status-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #555;
-    flex-shrink: 0;
-    transition: background 0.3s;
-  }
-  .status-dot.connected { background: #22c55e; box-shadow: 0 0 6px #22c55e88; }
-  .status-dot.error     { background: #ef4444; box-shadow: 0 0 6px #ef444488; }
 
   /* ── Portfolio / ticker cards ───────────────────────────── */
   .ticker-grid {
@@ -159,6 +127,16 @@
     text-transform: uppercase;
   }
   .custom-row input:focus { outline: none; border-color: #6c8cff; }
+
+  .btn {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
   .btn-analyze {
     background: #6c8cff;
     color: #0a0a0a;
@@ -277,16 +255,11 @@
 <body>
 <div class="app">
 
-  <h1><span>Portfolio</span> Analysis</h1>
-
-  <!-- Connection -->
-  <div class="panel">
-    <div class="panel-title">Connection</div>
-    <div class="conn-row">
-      <label for="session-id">Session</label>
-      <input id="session-id" type="text" readonly>
+  <div class="header">
+    <h1><span>Portfolio</span> Analysis</h1>
+    <div class="status-badge">
       <div id="status-dot" class="status-dot"></div>
-      <button id="btn-conn" class="btn btn-connect" onclick="toggleConnection()">Connect</button>
+      <span id="status-text">Connecting...</span>
     </div>
   </div>
 
@@ -323,19 +296,59 @@
 
 <script>
   // ── State ──────────────────────────────────────────────────────────────────
-  const HOLDINGS = { AAPL: 100, GOOGL: 50, MSFT: 75 };
-  const TOTAL_METRICS = 5;
+  let HOLDINGS = {};
+  let TOTAL_METRICS = 5;
 
   let ws = null;
+  let sessionId = null;
   let activeTicker = null;
   let metricCount = 0;
 
-  // ── Init ───────────────────────────────────────────────────────────────────
-  document.getElementById("session-id").value = crypto.randomUUID();
-  buildTickerGrid();
+  // Config values (set after POST /session)
+  let idleTimeoutSeconds = 60;
+  let autoReconnect = true;
+  let idleTimer = null;
+
+  // ── Init: auto-connect on page load ─────────────────────────────────────
+  createSession();
+
+  async function createSession() {
+    setStatus("reconnecting", "Connecting...");
+    try {
+      const resp = await fetch("/session", { method: "POST" });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+
+      sessionId = data.session_id;
+      log("info", `Session: ${sessionId}`);
+
+      // Apply config
+      const cfg = data.config;
+      const connSettings = cfg.features["client-connectivity"].settings;
+      idleTimeoutSeconds = connSettings["idle-timeout-seconds"];
+      autoReconnect = connSettings["auto-reconnect"];
+
+      const uiSettings = cfg.features["client-ui"].settings;
+      HOLDINGS = uiSettings["default-holdings"];
+
+      const analysisSettings = cfg.features["analysis"].settings;
+      TOTAL_METRICS = analysisSettings.metrics.length;
+
+      buildTickerGrid();
+      connect();
+    } catch (err) {
+      log("error", `Session creation failed: ${err.message}`);
+      setStatus("error", "Disconnected");
+      // Retry after a short delay
+      if (autoReconnect) {
+        setTimeout(createSession, 3000);
+      }
+    }
+  }
 
   function buildTickerGrid() {
     const grid = document.getElementById("ticker-grid");
+    grid.innerHTML = "";
     for (const [sym, shares] of Object.entries(HOLDINGS)) {
       const card = document.createElement("div");
       card.className = "ticker-card";
@@ -347,16 +360,7 @@
   }
 
   // ── Connection ─────────────────────────────────────────────────────────────
-  function toggleConnection() {
-    if (ws && ws.readyState <= WebSocket.OPEN) {
-      disconnect();
-    } else {
-      connect();
-    }
-  }
-
   function connect() {
-    const sessionId = document.getElementById("session-id").value;
     if (!sessionId) return;
 
     const proto = location.protocol === "https:" ? "wss:" : "ws:";
@@ -367,20 +371,20 @@
 
     ws.onopen = () => {
       log("info", "Connected");
-      setStatus("connected");
-      updateConnButton(true);
+      setStatus("connected", "Connected");
+      resetIdleTimer();
     };
 
     ws.onclose = (e) => {
       log("info", `Disconnected (code ${e.code})`);
-      setStatus("");
-      updateConnButton(false);
+      setStatus("", "Disconnected");
       ws = null;
+      clearIdleTimer();
     };
 
     ws.onerror = () => {
       log("error", "Connection error");
-      setStatus("error");
+      setStatus("error", "Error");
     };
 
     ws.onmessage = (e) => {
@@ -390,27 +394,37 @@
     };
   }
 
-  function disconnect() {
-    if (ws) {
-      ws.close();
-    }
-  }
-
-  function setStatus(state) {
+  function setStatus(state, text) {
     const dot = document.getElementById("status-dot");
     dot.className = "status-dot" + (state ? " " + state : "");
+    document.getElementById("status-text").textContent = text || "";
   }
 
-  function updateConnButton(connected) {
-    const btn = document.getElementById("btn-conn");
-    if (connected) {
-      btn.textContent = "Disconnect";
-      btn.className = "btn btn-disconnect";
-    } else {
-      btn.textContent = "Connect";
-      btn.className = "btn btn-connect";
+  // ── Idle timeout ──────────────────────────────────────────────────────────
+  function resetIdleTimer() {
+    clearIdleTimer();
+    if (idleTimeoutSeconds > 0) {
+      idleTimer = setTimeout(onIdle, idleTimeoutSeconds * 1000);
     }
   }
+
+  function clearIdleTimer() {
+    if (idleTimer) {
+      clearTimeout(idleTimer);
+      idleTimer = null;
+    }
+  }
+
+  function onIdle() {
+    log("info", "Idle timeout — reconnecting with new session");
+    if (ws) ws.close();
+    setStatus("reconnecting", "Reconnecting...");
+    setTimeout(createSession, 1000);
+  }
+
+  // Reset idle timer on user activity
+  document.addEventListener("click", resetIdleTimer);
+  document.addEventListener("keypress", resetIdleTimer);
 
   // ── Analysis ───────────────────────────────────────────────────────────────
   function analyzeTicker(ticker) {
@@ -449,6 +463,8 @@
     const msg = { action: "analyze", ticker };
     ws.send(JSON.stringify(msg));
     log("sent", JSON.stringify(msg));
+
+    resetIdleTimer();
   }
 
   function analyzeCustom() {

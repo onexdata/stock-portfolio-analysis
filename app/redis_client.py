@@ -2,7 +2,7 @@ import json
 
 import redis.asyncio as redis
 
-from app.config import settings
+from app.config import config, env
 
 # ── Connection ───────────────────────────────────────────────────────────────
 
@@ -12,7 +12,7 @@ _pool: redis.Redis | None = None
 async def get_redis() -> redis.Redis:
     global _pool
     if _pool is None:
-        _pool = redis.from_url(settings.redis_url, decode_responses=True)
+        _pool = redis.from_url(env.redis_url, decode_responses=True)
     return _pool
 
 
@@ -48,7 +48,7 @@ async def init_session(session_id: str, state_json: str) -> str | None:
             await r.execute_command("JSON.SET", key, "$", state_json)
         else:
             raise
-    await r.expire(key, settings.session_ttl_seconds)
+    await r.expire(key, config.features.client_connectivity.settings.session_ttl_seconds)
     raw = await r.execute_command("JSON.GET", key)
     return raw
 
@@ -59,7 +59,7 @@ async def get_portfolio(session_id: str) -> str | None:
     key = _key(session_id)
     raw = await r.execute_command("JSON.GET", key)
     if raw is not None:
-        await r.expire(key, settings.session_ttl_seconds)
+        await r.expire(key, config.features.client_connectivity.config.features.client_connectivity.settings.session_ttl_seconds)
     return raw
 
 
@@ -147,7 +147,7 @@ async def start_analysis(
 ) -> str | None:
     return await _scripts["start_analysis"](
         keys=[_key(session_id)],
-        args=[current_analysis_json, timestamp_json, settings.session_ttl_seconds],
+        args=[current_analysis_json, timestamp_json, config.features.client_connectivity.settings.session_ttl_seconds],
     )
 
 
@@ -156,7 +156,7 @@ async def append_result(
 ) -> str | None:
     return await _scripts["append_result"](
         keys=[_key(session_id)],
-        args=[result_json, timestamp_json, settings.session_ttl_seconds],
+        args=[result_json, timestamp_json, config.features.client_connectivity.settings.session_ttl_seconds],
     )
 
 
@@ -165,7 +165,7 @@ async def update_market(
 ) -> str | None:
     return await _scripts["update_market"](
         keys=[_key(session_id)],
-        args=[prices_json, timestamp_json, settings.session_ttl_seconds],
+        args=[prices_json, timestamp_json, config.features.client_connectivity.settings.session_ttl_seconds],
     )
 
 

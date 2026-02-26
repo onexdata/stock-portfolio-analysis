@@ -2,6 +2,10 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
+from app.config import config
+
+_ui = config.features.client_ui.settings
+
 
 # --- WebSocket messages ---
 
@@ -41,10 +45,10 @@ class MetricResult(BaseModel):
 
 class PortfolioState(BaseModel):
     session_id: str
-    holdings: dict[str, int] = Field(default_factory=lambda: {
-        "AAPL": 100, "GOOGL": 50, "MSFT": 75,
-    })
-    total_value: float = 125000.00
+    holdings: dict[str, int] = Field(
+        default_factory=lambda: dict(_ui.default_holdings)
+    )
+    total_value: float = Field(default_factory=lambda: _ui.initial_total_value)
     current_analysis: CurrentAnalysis | None = None
     analysis_results: list[MetricResult] = Field(default_factory=list)
     last_activity: datetime = Field(default_factory=datetime.utcnow)

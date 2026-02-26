@@ -24,14 +24,15 @@ Key patterns:
 ## Project Structure
 
 ```
+config.json           - Feature-structured behavioral config (see ADR-003)
 app/
-  main.py           - FastAPI app, WebSocket endpoint, lifespan
+  main.py           - FastAPI app, WebSocket endpoint, POST /session, lifespan
   models.py         - Pydantic models for messages and state
   redis_client.py   - Redis connection + RedisJSON + Lua scripts
   portfolio.py      - Portfolio state CRUD (thin layer over redis_client)
   analysis.py       - Parallel metric computation engine
   market.py         - Background market data updater
-  config.py         - Pydantic Settings (env prefix: PORTFOLIO_)
+  config.py         - Pydantic config hierarchy (config.json) + EnvSettings (env vars)
 scripts/
   demo_client.py    - WebSocket test/demo script
 documentation/
@@ -82,7 +83,7 @@ python scripts/demo_client.py
 - Pydantic models for all serialization boundaries
 - `async`/`await` throughout — no blocking calls
 - Lua scripts are inline strings in `redis_client.py`, registered via `EVALSHA` at startup
-- Configuration via environment variables with `PORTFOLIO_` prefix (see `app/config.py`)
+- Behavioral config in `config.json` structured by feature; deployment config (`redis_url`) via env vars with `PORTFOLIO_` prefix (see `app/config.py` and ADR-003)
 
 ## Important Constraints
 

@@ -5,30 +5,18 @@ import logging
 import random
 
 from app import redis_client, portfolio
-from app.config import settings
+from app.config import config
+
+_market = config.features.market_updates.settings
 
 logger = logging.getLogger(__name__)
 
-# Base prices for mock data (rough real-world magnitudes)
-_BASE_PRICES: dict[str, float] = {
-    "AAPL": 185.0,
-    "GOOGL": 140.0,
-    "MSFT": 375.0,
-    "AMZN": 155.0,
-    "TSLA": 200.0,
-    "META": 390.0,
-    "NVDA": 650.0,
-}
-
-_DEFAULT_PRICE = 100.0
-
-
 def _mock_prices(tickers: list[str]) -> dict[str, float]:
-    """Generate mock prices with +/- 2% random walk from base."""
+    """Generate mock prices with random walk from base (volatility from config)."""
     prices = {}
     for ticker in tickers:
-        base = _BASE_PRICES.get(ticker, _DEFAULT_PRICE)
-        jitter = base * random.uniform(-0.02, 0.02)
+        base = _market.base_prices.get(ticker, _market.default_price)
+        jitter = base * random.uniform(-_market.volatility, _market.volatility)
         prices[ticker] = round(base + jitter, 2)
     return prices
 
@@ -37,11 +25,11 @@ async def market_update_loop() -> None:
     """Run forever, updating all active portfolio sessions every interval."""
     logger.info(
         "Market updater started (interval=%ss)",
-        settings.market_update_interval_seconds,
+        _market.interval_seconds,
     )
     while True:
         try:
-            await asyncio.sleep(settings.market_update_interval_seconds)
+            await asyncio.sleep(_market.interval_seconds)
             keys = await redis_client.get_all_session_keys()
             for key in keys:
                 # key format: "portfolio:<session_id>"

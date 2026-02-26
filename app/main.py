@@ -2,6 +2,8 @@
 
 import asyncio
 import logging
+import secrets
+import time
 
 from contextlib import asynccontextmanager
 
@@ -13,6 +15,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app import redis_client, portfolio
 from app.analysis import run_analysis
+from app.config import config
 from app.market import market_update_loop
 from app.models import AnalyzeRequest, AnalysisResultMessage, ErrorMessage
 
@@ -56,6 +59,42 @@ app.mount("/static", StaticFiles(directory=_STATIC_DIR), name="static")
 @app.get("/")
 async def index():
     return FileResponse(_STATIC_DIR / "index.html")
+
+
+# ── Session endpoint ────────────────────────────────────────────────────────
+
+def _generate_session_id() -> str:
+    prefix = config.features.client_connectivity.settings.session_id_prefix
+    return f"{prefix}-{int(time.time())}-{secrets.token_hex(2)}"
+
+
+@app.post("/session")
+async def create_session():
+    session_id = _generate_session_id()
+    await portfolio.ensure_session(session_id)
+    conn = config.features.client_connectivity.settings
+    return {
+        "session_id": session_id,
+        "config": {
+            "app": config.app.model_dump(by_alias=True),
+            "features": {
+                "client-connectivity": {
+                    "settings": {
+                        "idle-timeout-seconds": conn.idle_timeout_seconds,
+                        "auto-reconnect": conn.auto_reconnect,
+                    }
+                },
+                "client-ui": {
+                    "settings": config.features.client_ui.settings.model_dump(by_alias=True),
+                },
+                "analysis": {
+                    "settings": {
+                        "metrics": config.features.analysis.settings.metrics,
+                    }
+                },
+            },
+        },
+    }
 
 
 # ── WebSocket endpoint ───────────────────────────────────────────────────────

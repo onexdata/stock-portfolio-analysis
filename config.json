@@ -1,0 +1,39 @@
+{
+  "app": { "name": "Portfolio Analysis" },
+  "features": {
+    "client-connectivity": {
+      "enabled": true,
+      "settings": {
+        "idle-timeout-seconds": 60,
+        "auto-reconnect": true,
+        "session-id-prefix": "s",
+        "session-ttl-seconds": 86400
+      }
+    },
+    "client-ui": {
+      "enabled": true,
+      "settings": {
+        "theme": "dark",
+        "default-holdings": { "AAPL": 100, "GOOGL": 50, "MSFT": 75 },
+        "initial-total-value": 125000.00
+      }
+    },
+    "analysis": {
+      "enabled": true,
+      "settings": {
+        "metrics": ["portfolio_risk", "concentration", "correlation", "momentum", "allocation_score"],
+        "max-concurrent": 5,
+        "simulation-delay-range": [2, 5]
+      }
+    },
+    "market-updates": {
+      "enabled": true,
+      "settings": {
+        "interval-seconds": 30,
+        "base-prices": { "AAPL": 185.0, "GOOGL": 140.0, "MSFT": 375.0, "AMZN": 155.0, "TSLA": 200.0, "META": 390.0, "NVDA": 650.0 },
+        "default-price": 100.0,
+        "volatility": 0.02
+      }
+    }
+  }
+}
